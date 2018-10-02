@@ -12,7 +12,7 @@ survival analysis performed in 8 cancers.
 
 Installed version of R version >= 3.4
 
-All the R libraries invoked in the shiny script clique_shiny.R.
+All the R libraries invoked in the shiny script clique_shiny.R. Recommend running on latest version of RStudio.
 
 Datasets: [https://www.dropbox.com/s/8o6yv2dnd07x35r/EPICC_data.tar.gz?dl=0]
 
