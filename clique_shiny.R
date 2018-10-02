@@ -1,5 +1,5 @@
+##EPICC novel cliques
 
-##.libPaths(c( "/home/shu/R/x86_64-redhat-linux-gnu-library/3.4", .libPaths() ) )
 library(shiny)
 library(gridExtra)
 library(ggnet)
@@ -14,16 +14,9 @@ ui <- fluidPage(
   titlePanel("EPICC cliques"),
   
   selectInput("select", label = "Select Clique", 
-              choices = c("select clique", c("TCGA_new_OV_2951_C2_60", "TCGA_new_SKCM_2002_C1_109", "TCGA_new_SKCM_1720_C1_72", 
-                                               "TCGA_new_SKCM_2002_C1_102", "TCGA_new_GBM_2476_C1_15", "TCGA_new_GBM_2476_C1_31", 
-                                               "TCGA_new_GBM_2476_C1_9", "TCGA_new_LUAD_1047_C1_36", "TCGA_new_SKCM_2002_C1_98", 
-                                               "TCGA_new_GBM_2476_C1_16", "TCGA_new_LUAD_1047_C1_41", "TCGA_new_GBM_2476_C1_21", 
-                                               "TCGA_new_GBM_2476_C1_20", "TCGA_new_GBM_2476_C1_29", "TCGA_new_SKCM_2002_C1_92", 
-                                               "TCGA_new_GBM_2476_C1_13", "TCGA_new_GBM_2476_C1_12", "TCGA_new_BRCA_650_C2_6", 
-                                               "TCGA_new_SKCM_2002_C1_104", "TCGA_new_SKCM_2002_C1_100", "TCGA_new_SKCM_2002_C2_89", 
-                                               "TCGA_new_GBM_2476_C1_18", "TCGA_new_BRCA_650_C2_9", "TCGA_new_SKCM_2002_C1_108", 
-                                               "TCGA_new_SKCM_1720_C1_68", "TCGA_new_LUAD_1047_C1_42", "TCGA_new_SKCM_1736_C2_70", 
-                                               "TCGA_new_GBM_2476_C1_26")), 
+              choices = c("select clique", c("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", 
+                                             "C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", 
+                                             "C20", "C21", "C22", "C23", "C24", "C25", "C26", "C27", "C28")), 
               selected = NULL, multiple = FALSE),
   selectInput("Anno", label = "Annotation", choices = c("select Annotation", "MsigDB", "GO_MF", "GO_BP", "GO_CC"), 
               selected = NULL, multiple = FALSE),
@@ -50,7 +43,7 @@ filt_cliques <- readRDS("filt_cliques.RDS")
 cliq_vis <- readRDS("cliq_vis.RDS")
 
 ##sample x mutation matrix
-samp_mut_mat <- readRDS("samp_mut_mat.rds")
+samp_mut_mat <- readRDS("samp_mut_mat.RDS")
 
 ##Pathways
 p_hit_msig <- readRDS("p_hit_msig.RDS")
@@ -65,26 +58,27 @@ p_surv_plots <- readRDS("p_surv_plots.RDS")
 
 # Define server logic ----
 server <- function(input, output, session) { 
- 
 
-##update number of proteins based on clique inpute
- observeEvent(input$select,  {
-   updateSliderInput(session = session, inputId = "in1",
-                     max = length(unlist(strsplit(as.character(filt_cliques[filt_cliques$cliq_id == input$select,]$mods), ","))))
- })
+  
+  ##update number of proteins based on clique inpute
+ # input$select <- alias_code[alias_code$alias == input$select,]$code
+  observeEvent(input$select,  {
+    updateSliderInput(session = session, inputId = "in1",
+                      max = length(unlist(strsplit(as.character(filt_cliques[filt_cliques$cliq_id1 == input$select,]$mods), ","))))
+  })
   
   output$distPlot <- renderPlot({
     validate(
       need(input$select != "select clique", "Please select a clique!!"),
       need(input$Anno != "select Annotation", "Please select annotation database!!"),
       need(input$Can != "Cancer type", "Please select Cancer type!!"),
-      need(length(unlist(strsplit(as.character(filt_cliques[filt_cliques$cliq_id == input$select,]$mods), ","))) != 0, 
+      need(length(unlist(strsplit(as.character(filt_cliques[filt_cliques$cliq_id1 == input$select,]$mods), ","))) != 0, 
            "Please select a new clique")
     )
-
-##cancer histotype frequency
-   
-    filt_cliques_mod <- unlist(strsplit(as.character(filt_cliques[filt_cliques$cliq_id == input$select,]$mods), ","))
+    
+    ##cancer histotype frequency
+    
+    filt_cliques_mod <- unlist(strsplit(as.character(filt_cliques[filt_cliques$cliq_id1 == input$select,]$mods), ","))
     filt_cliques_mod2 <- samp_mut_mat[,colnames(samp_mut_mat) %in% filt_cliques_mod]
     can_freq <- rownames(filt_cliques_mod2[rowSums(filt_cliques_mod2) >= input$in1,])
     
@@ -94,7 +88,7 @@ server <- function(input, output, session) {
     }else{
       can_freq1 <- as.data.frame(table(unlist(lapply(strsplit(can_freq, split = "_"),function(y)y[3]))))
       x <- can_freq1
-          ##p1 condition starts here
+      ##p1 condition starts here
       colnames(x) <- c("Cancer", "Patients")
       
       #   plot(x, xlab = "Cancer", main = "Cancer prevalence")
@@ -105,7 +99,7 @@ server <- function(input, output, session) {
               axis.text=element_text(size=8,face="bold"), plot.title = element_text(size = 10, face = "bold")) 
       p1 <- p + coord_flip() 
       
-##protein mutation frequency
+      ##protein mutation frequency
       filt_cliques_mod2 <- samp_mut_mat[,colnames(samp_mut_mat) %in% filt_cliques_mod]
       mp1_prot <- colSums(filt_cliques_mod2[rowSums(filt_cliques_mod2) >= input$in1,,drop=FALSE])
       d_mp1_prot <- as.data.frame(mp1_prot)
@@ -118,9 +112,9 @@ server <- function(input, output, session) {
               axis.text=element_text(size=8,face="bold"), plot.title = element_text(size = 10, face = "bold")) 
       p2 <- p2 + coord_flip()
       
-##clique graphs
+      ##clique graphs
       p4 <- cliq_vis[[input$select]]
-###   
+      ###   
       ##survival plots
       #Null plots
       if(is.null(p_surv_plots[[input$select]])){
