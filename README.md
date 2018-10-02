@@ -10,7 +10,7 @@ survival analysis performed in 8 cancers.
 
 ### Prerequisites
 
-Installed version of R version >= 3.4
+Installed version of R >= 3.4
 
 All the R libraries invoked in the shiny script clique_shiny.R. Recommend running on latest version of RStudio.
 
