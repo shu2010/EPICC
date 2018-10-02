@@ -1,5 +1,5 @@
 
-.libPaths(c( "/home/shu/R/x86_64-redhat-linux-gnu-library/3.4", .libPaths() ) )
+##.libPaths(c( "/home/shu/R/x86_64-redhat-linux-gnu-library/3.4", .libPaths() ) )
 library(shiny)
 library(gridExtra)
 library(ggnet)
